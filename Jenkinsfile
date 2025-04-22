@@ -33,7 +33,7 @@ pipeline {
                 }
             }
         } */
-        stage('Create S3 Bucket via CloudFormation') {
+        stage('Create S3 Bucket & EC2 instance via CloudFormation') {
                     steps {
                         script {
                             bat """
