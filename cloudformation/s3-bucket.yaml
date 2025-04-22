@@ -1,0 +1,16 @@
+# s3-bucket.yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create an S3 bucket for storing application artifacts
+
+Resources:
+  MyAppBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: my-springboot-artifacts-bucket
+      VersioningConfiguration:
+        Status: Enabled
+
+Outputs:
+  BucketName:
+    Description: "Name of the created S3 bucket"
+    Value: !Ref MyAppBucket
