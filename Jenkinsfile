@@ -33,22 +33,31 @@ pipeline {
                 }
             }
         } */
-        stage('Create S3 Bucket & EC2 instance via CloudFormation') {
-                    steps {
-                        script {
-                            bat """
-                            aws configure set aws_access_key_id %AWS_ACCESS_KEY_ID%
-                            aws configure set aws_secret_access_key %AWS_SECRET_ACCESS_KEY%
-                            aws configure set default.region %REGION%
+       stage('Create S3 Bucket & EC2 instance via CloudFormation') {
+           steps {
+               script {
+                   bat """
+                   aws configure set aws_access_key_id %AWS_ACCESS_KEY_ID%
+                   aws configure set aws_secret_access_key %AWS_SECRET_ACCESS_KEY%
+                   aws configure set default.region %REGION%
 
-                             aws cloudformation deploy \
-                                --template-file infrastructure/ec2-instance.yaml \
-                                --stack-name MyEC2Stack \
-                                --parameter-overrides KeyName=MyKeyPair AmiId=ami-0c02fb55956c7d316 \
-                                --capabilities CAPABILITY_NAMED_IAM
-                            """
-                        }
-                    }
-        }
+                   if aws cloudformation describe-stacks --stack-name MyEC2Stack --query "Stacks[0].StackStatus" --output text | findstr ROLLBACK_COMPLETE > nul;
+                   then
+                       echo "Deleting existing stack in ROLLBACK_COMPLETE state..."
+                       aws cloudformation delete-stack --stack-name MyEC2Stack
+                       echo "Waiting for stack to be deleted..."
+                       aws cloudformation wait stack-delete-complete --stack-name MyEC2Stack
+                   fi
+
+                   aws cloudformation deploy ^
+                       --template-file infrastructure/ec2-instance.yaml ^
+                       --stack-name MyEC2Stack ^
+                       --parameter-overrides KeyName=MyKeyPair AmiId=ami-0c02fb55956c7d316 ^
+                       --capabilities CAPABILITY_NAMED_IAM
+                   """
+               }
+           }
+       }
+
     }
 }
