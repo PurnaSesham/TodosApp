@@ -42,11 +42,6 @@ pipeline {
                             aws configure set default.region %REGION%
 
                              aws cloudformation deploy \
-                                --template-file %TEMPLATE_FILE% \
-                                --stack-name %STACK_NAME% \
-                                --capabilities CAPABILITY_NAMED_IAM
-
-                             aws cloudformation deploy \
                                 --template-file infrastructure/ec2-instance.yaml \
                                 --stack-name MyEC2Stack \
                                 --parameter-overrides KeyName=MyKeyPair AmiId=ami-0c02fb55956c7d316 \
